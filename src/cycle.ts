@@ -20,8 +20,8 @@ type GetStatus = (
 ) => string
 
 const getStatus: GetStatus = (item, index, summary, ops, longestOps) => {
-  const isFastest = index === summary.fastest.index
-  const isSlowest = index === summary.slowest.index
+  const isFastest = summary.fastest.find(c => c.index === index)
+  const isSlowest = summary.slowest.find(c => c.index === index)
   const statusShift = longestOps.length - ops.length + 2
 
   return (

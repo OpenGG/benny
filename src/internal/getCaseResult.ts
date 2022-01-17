@@ -15,6 +15,7 @@ const getCaseResult: GetCaseResult = (event) => {
   const target = (event.target || event) as Target
 
   return {
+    id: target.id,
     name: target.name,
     ops: target.hz,
     margin: Number(target.stats.rme.toFixed(2)),

@@ -89,6 +89,10 @@ export type SaveOptions = {
 
 export type CaseResult = {
   /**
+   * The id of the benchmark case
+   */
+  id: number
+  /**
    * The name of the benchmark case
    */
   name: string
@@ -178,11 +182,11 @@ export type Summary = {
   fastest: {
     name: string
     index: number
-  }
+  }[]
   slowest: {
     name: string
     index: number
-  }
+  }[]
 }
 
 export type CSVEntry = {
@@ -204,6 +208,7 @@ export type CSVEntry = {
 }
 
 export type Target = {
+  id: number
   name: string
   hz: number
   stats: {

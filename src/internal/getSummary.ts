@@ -1,4 +1,4 @@
-import { Event } from 'benchmark'
+import { Event, Suite } from 'benchmark'
 import { Summary } from './common-types'
 import getCaseResult from './getCaseResult'
 
@@ -21,7 +21,7 @@ const roundNumbersToDistinctValues = (
 }
 
 const getSummary: GetSummary = (event, precision) => {
-  const currentTarget = event.currentTarget
+  const currentTarget = event.currentTarget as Suite
 
   const resultsWithoutRoundedOps = Object.entries(currentTarget)
     .filter(([key]) => !Number.isNaN(Number(key)))
@@ -36,27 +36,23 @@ const getSummary: GetSummary = (event, precision) => {
     ops: roundedOps[index],
   }))
 
-  const fastestIndex = results.reduce(
-    (prev, next, index) => {
-      return next.ops > prev.ops ? { ops: next.ops, index } : prev
-    },
-    { ops: 0, index: 0 },
-  ).index
+  const fastestCases = currentTarget.filter('fastest').map('id') as number[]
 
-  const slowestIndex = results.reduce(
-    (prev, next, index) => {
-      return next.ops < prev.ops ? { ops: next.ops, index } : prev
-    },
-    { ops: Infinity, index: 0 },
-  ).index
+  const fastestIndexes = fastestCases.map((id) => results.findIndex(c => c.id === id))
+
+  const slowestCases = (
+    currentTarget.filter('slowest').map('id') as number[]
+  ).filter(id => !fastestCases.includes(id))
+
+  const slowestIndexes = slowestCases.map((id) => results.findIndex(c => c.id === id))
 
   const resultsWithDiffs = results.map((result, index) => {
     const percentSlower =
-      index === fastestIndex
+      index === fastestIndexes[0]
         ? 0
         : Number(
-            ((1 - result.ops / results[fastestIndex].ops) * 100).toFixed(2),
-          )
+          ((1 - result.ops / results[fastestIndexes[0]].ops) * 100).toFixed(2),
+        )
 
     return { ...result, percentSlower }
   })
@@ -66,14 +62,14 @@ const getSummary: GetSummary = (event, precision) => {
     name: event.currentTarget.name,
     date: new Date(event.timeStamp),
     results: resultsWithDiffs,
-    fastest: {
-      name: results[fastestIndex].name,
-      index: fastestIndex,
-    },
-    slowest: {
-      name: results[slowestIndex].name,
-      index: slowestIndex,
-    },
+    fastest: fastestIndexes.map(index => ({
+      name: results[index].name,
+      index,
+    })),
+    slowest: slowestIndexes.map(index => ({
+      name: results[index].name,
+      index,
+    })),
   }
 }
 

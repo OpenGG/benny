@@ -14,8 +14,12 @@ const defaultComplete: CompleteFn = (summary) => {
   )
 
   if (length > 1) {
-    console.log(kleur.blue('  Fastest:'), summary.fastest.name)
-    console.log(kleur.blue('  Slowest:'), summary.slowest.name)
+    console.log(kleur.blue('  Fastest:'), summary.fastest.map(({
+      name,
+    }) => name).join(', '))
+    console.log(kleur.blue('  Slowest:'), summary.slowest.map(({
+      name,
+    }) => name).join(', '))
   }
 }
 
